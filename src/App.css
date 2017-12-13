@@ -26,3 +26,15 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+h1 {
+  font-size: 3rem;
+  font-family: 'Lato';
+  font-weight: 800;
+}
+
+body {
+  font-size: 1rem;
+  font-family: 'lora';
+  font-weight: 400;
+}
