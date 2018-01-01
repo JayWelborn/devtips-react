@@ -3,8 +3,8 @@ import './App.css';
 
 
 let defaultStyle = {
-  color: '#ddd',
-  backgroundColor: '#111',
+  color: '#eee',
+  backgroundColor: '#110a1b',
   borderRadius: '5px',
   margin: '10px 5px'
 }
