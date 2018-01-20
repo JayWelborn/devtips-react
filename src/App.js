@@ -143,6 +143,15 @@ class App extends Component {
       }, 1000)
   }
   render() {
+    // Filter playlists according to search string
+    let playlistsToRender = this.state.serverData.user ?
+      // If user is set, create list of playlists
+      this.state.serverData.user.playlists.filter(playlist =>
+        playlist.name.toLowerCase().includes(
+          this.state.filterString.toLowerCase())
+      ) : {} // Else return empty array
+
+
     return (
       <div className="App">
         {
@@ -155,16 +164,11 @@ class App extends Component {
                       }}>
               {this.state.serverData.user.name}'s Playlists
             </h1>
-            <PlaylistCounter playlists={this.state.serverData.user.playlists} />
-            <HoursCounter playlists={this.state.serverData.user.playlists} />
+            <PlaylistCounter playlists={playlistsToRender} />
+            <HoursCounter playlists={playlistsToRender} />
             <Filter onTextChange={text => this.setState({filterString: text})} />
-            {
-              // Filter playlists according to search string
-              this.state.serverData.user.playlists.filter(playlist =>
-                playlist.name.toLowerCase().includes(
-                  this.state.filterString.toLowerCase())
-              // Map playlists to components
-              ).map(playlist =>
+            { // Map playlists to components
+              playlistsToRender.map(playlist =>
                 <Playlist playlist={playlist} />
               ) // End map
             }
