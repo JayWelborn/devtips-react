@@ -90,7 +90,10 @@ class Filter extends Component {
         margin: '0px auto'
       }}>
         <img src="" alt=""/>
-        <input type="text"/>
+        <input type="text" onKeyUp={
+          // Pass event text to onTextChange function of the parent
+          event => this.props.onTextChange(event.target.value)
+        }/>
       </div>
     );
   }
@@ -120,11 +123,13 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      serverData: {}
+      serverData: {},
+      filterString: '',
     }
   }
 
   componentDidMount() {
+    // Simulate getting data from server
     setTimeout(() => {
         this.setState({
           serverData: fakeServerData
@@ -139,14 +144,21 @@ class App extends Component {
           <div>
             <h1 style={{...defaultStyle,
                         maxWidth: '50%',
-                        margin: '10px auto',}}>
+                        margin: '10px auto',
+                        padding: '10px',
+                      }}>
               {this.state.serverData.user.name}'s Playlists
             </h1>
             <PlaylistCounter playlists={this.state.serverData.user.playlists} />
             <HoursCounter playlists={this.state.serverData.user.playlists} />
-            <Filter />
+            <Filter onTextChange={text => this.setState({filterString: text})} />
             {
-              this.state.serverData.user.playlists.map(playlist =>
+              // Filter playlists according to search string
+              this.state.serverData.user.playlists.filter(playlist =>
+                playlist.name.toLowerCase().includes(
+                  this.state.filterString.toLowerCase())
+              // Map playlists to components
+              ).map(playlist =>
                 <Playlist playlist={playlist} />
               ) // End map
             }
