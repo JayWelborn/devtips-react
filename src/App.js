@@ -27,7 +27,8 @@ let fakeServerData = {
         songs:[
           {name: 'Le Song', duration: 1325},
           {name: 'the Song', duration: 1523},
-          {name: 'Songysong', duration: 1542}
+          {name: 'Songysong', duration: 1542},
+          {name: 'whatever', duration: 123}
         ]
       },
       {
@@ -102,7 +103,12 @@ class Filter extends Component {
 class Playlist extends Component {
   render() {
     return (
-      <div style={{...defaultStyle, width: '23%', display: 'inline-block'}}>
+      <div style={{
+        ...defaultStyle,
+        width: '23%',
+        display: 'inline-block',
+        minHeight: '150px',
+      }}>
         <img src="" alt=""/>
         <h3>{this.props.playlist.name}</h3>
         <ul>
@@ -166,7 +172,9 @@ class App extends Component {
           :
           <h1 style={{...defaultStyle,
                       maxWidth: '50%',
-                      margin: '10px auto'}}>
+                      margin: '10px auto',
+                      padding: '10px'
+          }}>
             Loading
           </h1>
         }
