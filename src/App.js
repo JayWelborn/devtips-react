@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import queryString from 'query-string';
 
 
 let defaultStyle = {
@@ -22,33 +23,6 @@ let fakeServerData = {
           {name: 'Body & Soul', duration: 2431}
         ]
       },
-      {
-        name: 'Discover Weekly',
-        songs:[
-          {name: 'Le Song', duration: 1325},
-          {name: 'the Song', duration: 1523},
-          {name: 'Songysong', duration: 1542},
-          {name: 'whatever', duration: 123}
-        ]
-      },
-      {
-        name: 'Another Playlist (#3)',
-        songs:[
-          {name: 'Beat It', duration: 1234},
-          {name: 'Yankee Doodle', duration: 1324},
-          {name: 'Quartet for the End of Time', duration: 4321},
-          {name: 'Body & Soul', duration: 2431}
-        ]
-      },
-      {
-        name: 'Super #4',
-        songs:[
-          {name: 'Beat It', duration: 1234},
-          {name: 'Yankee Doodle', duration: 1324},
-          {name: 'Quartet for the End of Time', duration: 4321},
-          {name: 'Body & Soul', duration: 2431}
-        ]
-      }
     ],
   }
 };
@@ -105,11 +79,11 @@ class Playlist extends Component {
     return (
       <div style={{
         ...defaultStyle,
-        width: '23%',
+        width: '30%',
         display: 'inline-block',
-        minHeight: '150px',
+        minHeight: '300px',
       }}>
-        <img src="" alt=""/>
+        <img style={{width:'160px', margin:'20px'}} src={this.props.playlist.imageUrl} alt=""/>
         <h3>{this.props.playlist.name}</h3>
         <ul>
           {
@@ -135,35 +109,64 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // Simulate getting data from server
-    setTimeout(() => {
-        this.setState({
-          serverData: fakeServerData
-        });
-      }, 1000)
-  }
+
+    // Get spotify access token from url querystring
+    let parsed = queryString.parse(window.location.search);
+    let accessToken = parsed.access_token;
+
+    // Fetch spotify data using access toekn
+    fetch('https://api.spotify.com/v1/me', {
+      headers: {'Authorization': 'Bearer ' + accessToken}
+    }).then((response) => response.json())
+    // set component's state with relevent data
+    .then(data => this.setState({
+      user: {
+        name: data.display_name
+      }
+    }))
+
+    // Fetch spotify data using access token
+    fetch('https://api.spotify.com/v1/me/playlists', {
+      headers: {'Authorization': 'Bearer ' + accessToken}
+    }).then((response) => response.json())
+    // set component's state with relevent data
+    .then(data => this.setState({
+      playlists: data.items.map(item => {
+        console.log(item)
+        return {
+          name: item.name,
+          imageUrl: item.images[0].url,
+          songs: []
+        }
+      })
+    }))
+  };
+
   render() {
     // Filter playlists according to search string
-    let playlistsToRender = this.state.serverData.user ?
+    let playlistsToRender =
+      this.state.user &&
+      this.state.playlists
       // If user is set, create list of playlists
-      this.state.serverData.user.playlists.filter(playlist =>
-        playlist.name.toLowerCase().includes(
-          this.state.filterString.toLowerCase())
-      ) : {} // Else return empty array
+        ? this.state.playlists.filter(playlist =>
+          playlist.name.toLowerCase().includes(
+            this.state.filterString.toLowerCase()))
+      : [] // Else return empty array
 
 
     return (
       <div className="App">
         {
-          this.state.serverData.user ?
+          this.state.user ?
           <div>
             <h1 style={{...defaultStyle,
                         maxWidth: '50%',
                         margin: '10px auto',
                         padding: '10px',
                       }}>
-              {this.state.serverData.user.name}'s Playlists
+              {this.state.user.name}'s Playlists
             </h1>
+
             <PlaylistCounter playlists={playlistsToRender} />
             <HoursCounter playlists={playlistsToRender} />
             <Filter onTextChange={text => this.setState({filterString: text})} />
@@ -172,15 +175,13 @@ class App extends Component {
                 <Playlist playlist={playlist} />
               ) // End map
             }
+
           </div>
           :
-          <h1 style={{...defaultStyle,
-                      maxWidth: '50%',
-                      margin: '10px auto',
-                      padding: '10px'
-          }}>
-            Loading
-          </h1>
+          <button onClick={() =>window.location = 'http://localhost:8888/login'}
+            style={{padding: '20px', fontSize: '50px', marginTop: '20px',}}>
+            Sign in with Spotify
+          </button>
         }
 
       </div>
