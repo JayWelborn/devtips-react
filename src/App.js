@@ -10,24 +10,6 @@ let defaultStyle = {
   margin: '10px 5px'
 }
 
-let fakeServerData = {
-  user: {
-    name: 'Jay',
-    playlists: [
-      {
-        name: 'My favorites',
-        songs:[
-          {name: 'Beat It', duration: 1234},
-          {name: 'Yankee Doodle', duration: 1324},
-          {name: 'Quartet for the End of Time', duration: 4321},
-          {name: 'Body & Soul', duration: 2431}
-        ]
-      },
-    ],
-  }
-};
-
-
 class PlaylistCounter extends Component {
   render() {
     return (
@@ -113,6 +95,10 @@ class App extends Component {
     // Get spotify access token from url querystring
     let parsed = queryString.parse(window.location.search);
     let accessToken = parsed.access_token;
+
+    if (!accessToken)  {
+      return;
+    }
 
     // Fetch spotify data using access toekn
     fetch('https://api.spotify.com/v1/me', {
