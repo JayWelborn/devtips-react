@@ -114,15 +114,48 @@ class App extends Component {
     // Fetch spotify data using access token
     fetch('https://api.spotify.com/v1/me/playlists', {
       headers: {'Authorization': 'Bearer ' + accessToken}
-    }).then((response) => response.json())
+    }).then(response => response.json())
+    // data is list of playlists
+    .then(playlistData => {
+      let playlists = playlistData.items
+      // fetch each track in playlists
+      let trackDataPromises = playlists.map(playlist => {
+        // get promises
+        let responsePromise = fetch(playlist.tracks.href, {
+          headers: {'Authorization': 'Bearer ' + accessToken}
+        })
+        // convert promise to json data when promise is fulfilled
+        let trackDataPromise = responsePromise
+          .then(response => response.json())
+        // return data
+        return trackDataPromise
+      })
+      // convert tracks datas promises to an array once they are all fulfilled
+      let allTracksDatasPromises = Promise.all(trackDataPromises)
+      // map the arrays of tracks to the array of playlists
+      let playlistsPromise =  allTracksDatasPromises.then(trackDatas => {
+        trackDatas.forEach((trackData, i) => {
+          // Spotify track item is nested too deeply. Only care about track info
+          playlists[i].trackDatas = trackData.items
+            .map(item => item.track)
+            .map(trackData => ({
+              name: trackData.name,
+              // convert duration to seconds
+              duration: trackData.duration_ms / 1000,
+            }))
+        })
+        return playlists
+      })
+      return playlistsPromise
+    })
     // set component's state with relevent data
-    .then(data => this.setState({
-      playlists: data.items.map(item => {
-        console.log(item)
+    .then(playlists => this.setState({
+      playlists: playlists.map(item => {
+        console.log(item.trackDatas)
         return {
           name: item.name,
           imageUrl: item.images[0].url,
-          songs: []
+          songs: item.trackDatas.slice(0,4)
         }
       })
     }))
