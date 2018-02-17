@@ -1,16 +1,23 @@
-.App {
-  text-align: center;
-}
-
-h1 {
-  font-size: 3rem;
-  font-family: 'Lato';
-  font-weight: 800;
-}
-
 body {
   font-size: 1rem;
   font-family: 'lora';
   font-weight: 400;
   background-color: #8B7D8B;
+  padding: 20px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Lato';
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin: 10px 0px;
+}
+
+h1 {
+  font-size: 3rem;
+  text-align: center;
+}
+
+h2 {
+  font-size: 2rem;
 }

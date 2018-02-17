@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import 'reset-css/reset.css';
 import './App.css';
 import queryString from 'query-string';
 
@@ -7,13 +8,18 @@ let defaultStyle = {
   color: '#eee',
   backgroundColor: '#110a1b',
   borderRadius: '5px',
-  margin: '10px 5px'
+  margin: '10px 5px',
+  padding: '10px',
+}
+
+function isEven(number) {
+  return number % 2
 }
 
 class PlaylistCounter extends Component {
   render() {
     return (
-      <div style={{...defaultStyle, width: '40%', display: 'inline-block'}}>
+      <div style={{...defaultStyle, textAlign:'center', width: '40%', display: 'inline-block'}}>
         <h2>{this.props.playlists.length} playlists</h2>
       </div>
     );
@@ -29,7 +35,7 @@ class HoursCounter extends Component {
       return sum += eachSong.duration
     }, 0);
     return (
-      <div style={{...defaultStyle, width: '40%', display: 'inline-block'}}>
+      <div style={{...defaultStyle, textAlign:'center', width: '40%', display: 'inline-block'}}>
         <h2>{Math.round(totalDuration / 60)} hours</h2>
       </div>
     );
@@ -42,14 +48,22 @@ class Filter extends Component {
     return (
       <div style={{
         ...defaultStyle,
-        maxWidth: '50%',
+        maxWidth: '25%',
         padding: '10px',
-        margin: '0px auto'
+        margin: '0px auto',
+        textAlign: 'center',
       }}>
         <img src="" alt=""/>
-        <input type="text" onKeyUp={
-          // Pass event text to onTextChange function of the parent
-          event => this.props.onTextChange(event.target.value)
+        <input type="text"
+          style= {{
+            ...defaultStyle,
+            padding: '10px',
+            backgroundColor: 'white',
+            color: 'black',
+          }}
+          onKeyUp={
+            // Pass event text to onTextChange function of the parent
+            event => this.props.onTextChange(event.target.value)
         }/>
       </div>
     );
@@ -61,16 +75,19 @@ class Playlist extends Component {
     return (
       <div style={{
         ...defaultStyle,
-        width: '30%',
         display: 'inline-block',
         minHeight: '300px',
+        padding: '10px 30px 20px 30px',
+        backgroundColor: isEven(this.props.index)
+          ? '#110a1b'
+          : '#151838',
       }}>
-        <img style={{width:'160px', margin:'20px'}} src={this.props.playlist.imageUrl} alt=""/>
         <h3>{this.props.playlist.name}</h3>
-        <ul>
+        <img style={{width:'160px', margin:'20px 0px'}} src={this.props.playlist.imageUrl} alt=""/>
+        <ul style={{listStyleType: 'none', padding: '0px'}}>
           {
             this.props.playlist.songs.map(song =>
-              <li>{song.name}</li>
+              <li style={{marginTop: '10px'}}>{song.name}</li>
             )
           }
         </ul>
@@ -112,8 +129,10 @@ class App extends Component {
     }))
 
     // Fetch spotify data using access token
-    fetch('https://api.spotify.com/v1/me/playlists', {
-      headers: {'Authorization': 'Bearer ' + accessToken}
+    fetch('https://api.spotify.com/v1/me/playlists?limit=50', {
+      headers: {
+        'Authorization': 'Bearer ' + accessToken,
+      }
     }).then(response => response.json())
     // data is list of playlists
     .then(playlistData => {
@@ -155,7 +174,7 @@ class App extends Component {
         return {
           name: item.name,
           imageUrl: item.images[0].url,
-          songs: item.trackDatas.slice(0,4)
+          songs: item.trackDatas.slice(0,3)
         }
       })
     }))
@@ -191,12 +210,14 @@ class App extends Component {
               {this.state.user.name}'s Playlists
             </h1>
 
-            <PlaylistCounter playlists={playlistsToRender} />
-            <HoursCounter playlists={playlistsToRender} />
-            <Filter onTextChange={text => this.setState({filterString: text})} />
+            <div style={{width:'50%',textAlign:'center',marginLeft:'auto', marginRight:'auto'}}>
+              <PlaylistCounter playlists={playlistsToRender} />
+              <HoursCounter playlists={playlistsToRender} />
+              <Filter onTextChange={text => this.setState({filterString: text})} />
+            </div>
             { // Map playlists to components
-              playlistsToRender.map(playlist =>
-                <Playlist playlist={playlist} />
+              playlistsToRender.map((playlist, i) =>
+                <Playlist playlist={playlist} index={i} />
               ) // End map
             }
 
