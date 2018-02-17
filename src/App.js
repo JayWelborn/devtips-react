@@ -167,10 +167,15 @@ class App extends Component {
       this.state.user &&
       this.state.playlists
       // If user is set, create list of playlists
-        ? this.state.playlists.filter(playlist =>
-          playlist.name.toLowerCase().includes(
-            this.state.filterString.toLowerCase()))
-      : [] // Else return empty array
+        ? this.state.playlists.filter(playlist => {
+          // see if filterstring matches any playlist names
+          let matchesPlaylist = playlist.name.toLowerCase().includes(
+            this.state.filterString.toLowerCase())
+          // or any track names
+          let matchesTrack = playlist.songs.find(song =>
+            song.name.toLowerCase().includes(this.state.filterString.toLowerCase()))
+          return matchesPlaylist || matchesTrack
+        }) : [] // Else return empty array
 
 
     return (
